@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  pose-detection:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pose-detection
+    volumes:
+      - ./:/app
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${XAUTHORITY:-~/.Xauthority}:/root/.Xauthority
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      - PYTHONUNBUFFERED=1
+    devices:
+      - /dev/video0:/dev/video0
+    network_mode: host
+    restart: unless-stopped
+    # Use privileged mode to access display and camera
+    privileged: true
