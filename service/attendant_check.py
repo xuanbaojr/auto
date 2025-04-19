@@ -1,6 +1,6 @@
 from service.booth_check import BoothCheck
 
-class Check:
+class AttendantCheck:
     def __init__(self):
         self.booth_check = BoothCheck()
     
