@@ -1,8 +1,9 @@
-from service.booth_check import BoothCheck
+from service.attendant_check import AttendantCheck
 import logging, queue, threading, os
 import subprocess, av, time
 from concurrent.futures import ThreadPoolExecutor
 import cv2
+import datetime
 
 import threading
 from threading import Lock
@@ -34,18 +35,21 @@ class Camera:
 
 
 class RTSPProcessor:
-    def __init__(self, rtsp_url, output_dir, buffer_size=30, 
+    def __init__(self, rtsp_url_1, rtsp_url_2, rtsp_url_3, rtsp_url_4, output_dir, buffer_size=30, 
                 analysis_workers=2, segment_length=300, reconnect_attempts=5, analyze_frame=None):
         
         self.workers = []
-        self.rtsp_url = rtsp_url
-        self.cap = Camera(rtsp_url)
+        self.rtsp_url_1 = rtsp_url_1
+        self.rtsp_url_2 = rtsp_url_2
+        self.rtsp_url_3 = rtsp_url_3
+        self.rtsp_url_4 = rtsp_url_4
         self.output_dir = output_dir
         self.buffer_size = buffer_size
         self.analysis_workers = analysis_workers
         self.segment_length = segment_length
         self.reconnect_attempts = reconnect_attempts
         self.stop_signal = threading.Event()  # Initialize stop_signal
+        self.cap_1 = Camera(rtsp_url_1)
 
         # Setup logging
         logging.basicConfig(
@@ -57,7 +61,7 @@ class RTSPProcessor:
         self.should_record = False
         self.is_recording = False
         self.last_segment_time = 0
-        self.recording_proc = None
+        self.recording_proc_1, self.recording_proc_2, self.recording_proc_3, self.recording_proc_4 = None, None, None, None
         self.analyze_frame = analyze_frame
 
         os.makedirs(output_dir, exist_ok=True)
@@ -67,7 +71,7 @@ class RTSPProcessor:
         
         while not self.stop_signal.is_set():
             try:
-                frame = self.cap.getFrame()
+                frame = self.cap_1.getFrame()
                 if frame is None:
                     time.sleep(0.01)  # Small sleep to prevent CPU spinning
                     continue
@@ -101,108 +105,222 @@ class RTSPProcessor:
     def _start_recording(self):
         """Start a new recording immediately with optimized parameters"""
         try:
-            timestamp = time.strftime("%Y%m%d-%H%M%S")
-            output_path = os.path.join(self.output_dir, f"capture_{timestamp}.mp4")
+            now = datetime.datetime.now()
+            date_folder = now.strftime("%d_%m_%Y")
+
+            hour = now.strftime("%H")
+            minute = now.strftime("%M")
+            second = now.strftime("%S")
+
+            nested_path_init = os.path.join(self.output_dir, date_folder, hour, minute, second)
+            os.makedirs(nested_path_init, exist_ok=True)
             
-            self.recording_cmd = [
+            # Store initial output path (without duration)
+            self.initial_output_path_cam1 = os.path.join(nested_path_init, "cam1.mp4")
+            self.initial_output_path_cam2 = os.path.join(nested_path_init, "cam2.mp4")
+            self.initial_output_path_cam3 = os.path.join(nested_path_init, "cam3.mp4")
+            self.initial_output_path_cam4 = os.path.join(nested_path_init, "cam4.mp4")
+            
+            self.recording_cmd_1 = [
                 'ffmpeg',
                 '-y',
-                '-rtsp_transport', 'tcp',           # More reliable than UDP
-                '-rtsp_flags', 'prefer_tcp',        # Force TCP when possible
-                '-stimeout', '5000000',             # 5 second timeout
-                '-i', self.rtsp_url,                # Use the original RTSP URL directly
-                '-c:v', 'libx265',                  # Use H.264 instead of H.265 for faster encoding
-                '-preset', 'ultrafast',             # Faster encoding preset for short clips
-                '-crf', '23',                       # Constant Rate Factor (quality level, lower = better)
-                '-pix_fmt', 'yuv420p',              # Standard pixel format for compatibility
-                '-movflags', '+faststart',          # Optimize for web streaming
-                output_path
+                '-rtsp_transport', 'tcp',
+                '-rtsp_flags', 'prefer_tcp',
+                '-stimeout', '5000000',
+                '-i', self.rtsp_url_1,
+                '-c:v', 'libx265',
+                '-preset', 'ultrafast',
+                '-crf', '23',
+                '-pix_fmt', 'yuv420p',
+                '-movflags', '+faststart',
+                self.initial_output_path_cam1  # Using the stored path
+            ]
+
+            self.recording_cmd_2 = [
+                'ffmpeg',
+                '-y',
+                '-rtsp_transport', 'tcp',
+                '-rtsp_flags', 'prefer_tcp',
+                '-stimeout', '5000000',
+                '-i', self.rtsp_url_2,
+                '-c:v', 'libx265',
+                '-preset', 'ultrafast',
+                '-crf', '23',
+                '-pix_fmt', 'yuv420p',
+                '-movflags', '+faststart',
+                self.initial_output_path_cam2  # Using the stored path
+            ]
+
+            self.recording_cmd_3 = [
+                'ffmpeg',
+                '-y',
+                '-rtsp_transport', 'tcp',
+                '-rtsp_flags', 'prefer_tcp',
+                '-stimeout', '5000000',
+                '-i', self.rtsp_url_3,
+                '-c:v', 'libx265',
+                '-preset', 'ultrafast',
+                '-crf', '23',
+                '-pix_fmt', 'yuv420p',
+                '-movflags', '+faststart',
+                self.initial_output_path_cam3  # Using the stored path
+            ]
+
+            self.recording_cmd_4 = [
+                'ffmpeg',
+                '-y',
+                '-rtsp_transport', 'tcp',
+                '-rtsp_flags', 'prefer_tcp',
+                '-stimeout', '5000000',
+                '-i', self.rtsp_url_4,
+                '-c:v', 'libx265',
+                '-preset', 'ultrafast',
+                '-crf', '23',
+                '-pix_fmt', 'yuv420p',
+                '-movflags', '+faststart',
+                self.initial_output_path_cam4  # Using the stored path
             ]
             
-            
             # Start recording process with optimized configuration
-            self.recording_proc = subprocess.Popen(
-                self.recording_cmd,
+            self.recording_proc_1 = subprocess.Popen(
+                self.recording_cmd_1,
                 stdin=subprocess.PIPE,
-                stdout=subprocess.DEVNULL,  # Redirect stdout to prevent blocking
+                stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
-                bufsize=0,                  # Unbuffered operation for lower latency
+                bufsize=0,
             )
+
+            self.recording_proc_2 = subprocess.Popen(
+                self.recording_cmd_2,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                bufsize=0,
+            )
+
+            self.recording_proc_3 = subprocess.Popen(
+                self.recording_cmd_3,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                bufsize=0,
+            )
+
+            self.recording_proc_4 = subprocess.Popen(
+                self.recording_cmd_4,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                bufsize=0,
+            )
+            
             
             # Update recording state
             self.is_recording = True
             self.last_segment_time = time.time()
             self.recording_start_time = time.time()
-            self.logger.info(f"Started recording to {output_path} with H.264 encoding")
+            self.logger.info(f"Started recording to .mp4 file with H.265 encoding")
             
         except Exception as e:
             self.logger.error(f"Failed to start recording: {e}")
             self.is_recording = False
-            if hasattr(self, 'recording_proc') and self.recording_proc:
-                try:
-                    self.recording_proc.kill()  # Clean up if exception occurred
-                except:
-                    pass
-            self.recording_proc = None
-    
+            for proc_name in ['recording_proc_1', 'recording_proc_2', 'recording_proc_3', 'recording_proc_4']:
+                if hasattr(self, proc_name) and getattr(self, proc_name):
+                    try:
+                        getattr(self, proc_name).kill()
+                    except:
+                        pass
+                    setattr(self, proc_name, None)
+
     def _stop_recording(self):
-        """Stop the current recording and finalize MP4 file"""
-        if not hasattr(self, 'recording_proc') or not self.recording_proc:
+        """Stop all camera recordings and organize files with duration information"""
+        # Check if we're actually recording
+        recording_procs = [
+            self.recording_proc_1, self.recording_proc_2, 
+            self.recording_proc_3, self.recording_proc_4
+        ]
+        
+        if not any(recording_procs):
             self.is_recording = False
-            print("No recording process to stop")
+            self.logger.info("No recording processes to stop")
             return
-            
+                
         try:
             # Calculate recording duration
             recording_duration = time.time() - self.recording_start_time
+            duration_seconds = int(round(recording_duration))
             
-            # For very short recordings, add a small delay to ensure proper finalization
-            # if recording_duration < 20:
-            #     self.logger.info(f"Short recording detected ({recording_duration:.2f}s), ensuring proper finalization")
-            #     time.sleep(1)  # Give FFmpeg a moment to process buffered frames
+            # Process all recording processes
+            for i, proc in enumerate([self.recording_proc_1, self.recording_proc_2, 
+                                    self.recording_proc_3, self.recording_proc_4], 1):
+                if proc is None:
+                    continue
+                    
+                # Send 'q' to FFmpeg stdin for graceful termination
+                if proc.stdin:
+                    try:
+                        proc.stdin.write(b'q')
+                        proc.stdin.flush()
+                    except (BrokenPipeError, IOError) as e:
+                        self.logger.warning(f"Could not write to FFmpeg stdin for cam{i}: {e}")
                 
-            # Send 'q' to FFmpeg stdin for graceful termination
-            if self.recording_proc.stdin:
+                # Wait for process to finish with timeout
+                timeout = 15 if recording_duration < 20 else 10
                 try:
-                    self.recording_proc.stdin.write(b'q')
-                    self.recording_proc.stdin.flush()
-                except (BrokenPipeError, IOError) as e:
-                    self.logger.warning(f"Could not write to FFmpeg stdin: {e}")
-            
-            # Wait for process to finish with a generous timeout
-            # Longer timeout for short recordings to ensure proper finalization
-            timeout = 15 if recording_duration < 20 else 10
-            try:
-                self.recording_proc.wait(timeout=timeout)
-                self.logger.info(f"Recording stopped after {recording_duration:.2f} seconds")
-            except subprocess.TimeoutExpired:
-                self.logger.warning("FFmpeg process did not terminate gracefully, forcing termination")
-                self.recording_proc.terminate()
-                try:
-                    self.recording_proc.wait(timeout=5)
+                    proc.wait(timeout=timeout)
+                    self.logger.info(f"Recording stopped for cam{i} after {recording_duration:.2f} seconds")
                 except subprocess.TimeoutExpired:
-                    self.logger.error("FFmpeg termination failed, killing process")
-                    self.recording_proc.kill()
-                    
-            # Verify the output file exists and has content
-            if hasattr(self, 'recording_cmd'):
-                output_path = self.recording_cmd[-1]
-                if os.path.exists(output_path):
-                    file_size = os.path.getsize(output_path)
-                    if file_size < 1024:  # Less than 1KB is suspicious
-                        self.logger.warning(f"Output file seems too small ({file_size} bytes), may be corrupted")
-                else:
-                    self.logger.error(f"Output file {output_path} was not created")
-                    
+                    self.logger.warning(f"FFmpeg process for cam{i} did not terminate gracefully, forcing termination")
+                    proc.terminate()
+                    try:
+                        proc.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        self.logger.error(f"FFmpeg termination failed for cam{i}, killing process")
+                        proc.kill()
+            
+            # Get the base directory where videos are stored (date/hour/minute)
+            if hasattr(self, 'initial_output_path_cam1'):
+                base_dir = os.path.dirname(os.path.dirname(self.initial_output_path_cam1))  # Go up two levels (from date/hour/minute/second)
+                current_dir_name = os.path.basename(os.path.dirname(self.initial_output_path_cam1))  # Get the "second" part
+                
+                # Create new directory with duration: second_duration
+                new_dir_name = f"{current_dir_name}_{duration_seconds}"
+                new_dir_path = os.path.join(base_dir, new_dir_name)
+                
+                # Create the new directory
+                os.makedirs(new_dir_path, exist_ok=True)
+                
+                # Move all camera files to the new directory
+                for cam_num in range(1, 5):
+                    src_path = getattr(self, f"initial_output_path_cam{cam_num}", None)
+                    if src_path and os.path.exists(src_path):
+                        dst_filename = f"cam{cam_num}.mp4"
+                        dst_path = os.path.join(new_dir_path, dst_filename)
+                        
+                        try:
+                            os.rename(src_path, dst_path)
+                            self.logger.info(f"Moved cam{cam_num} video to: {dst_path}")
+                        except Exception as e:
+                            self.logger.error(f"Failed to move cam{cam_num} video: {e}")
+                
+                # Remove the original second directory if it's empty
+                try:
+                    original_dir = os.path.dirname(self.initial_output_path_cam1)
+                    if os.path.exists(original_dir) and not os.listdir(original_dir):
+                        os.rmdir(original_dir)
+                except Exception as e:
+                    self.logger.warning(f"Could not remove original directory: {e}")
+                        
         except Exception as e:
-            self.logger.error(f"Error stopping recording: {e}")
-            try:
-                self.recording_proc.kill()
-            except:
-                pass
+            self.logger.error(f"Error in _stop_recording: {e}")
         finally:
-            self.recording_proc = None
+            # Clean up all recording processes
+            self.recording_proc_1 = None
+            self.recording_proc_2 = None
+            self.recording_proc_3 = None
+            self.recording_proc_4 = None
             self.is_recording = False
+            self.logger.info(f"All recordings stopped after {recording_duration:.2f} seconds")
 
     
     def _cleanup(self):
@@ -218,26 +336,29 @@ class RTSPProcessor:
         self.logger.info("RTSP processor stopped")
         
 def main():
-    booth_check = BoothCheck()
-
+    attendant_check = AttendantCheck()  
     from dotenv import load_dotenv
     import os
 
     load_dotenv()  # Load environment variables from .env file
 
-    rtsp_url1 = os.getenv('RTSP_URL2')
-    print("rtsp_url1", rtsp_url1)
-    output_dir = "./videos"
-    os.makedirs(output_dir, exist_ok=True)
+    rtsp_url1 = os.getenv('RTSP_URL1')
+    rtsp_url2 = os.getenv('RTSP_URL2')
+    rtsp_url3 = os.getenv('RTSP_URL3')
+    rtsp_url4 = os.getenv('RTSP_URL4')
+    output_dir = "./output_video"
     try:
         processor = RTSPProcessor(
-            rtsp_url=rtsp_url1,
+            rtsp_url_1=rtsp_url1,
+            rtsp_url_2=rtsp_url2,
+            rtsp_url_3=rtsp_url3,
+            rtsp_url_4=rtsp_url4,
             output_dir=output_dir,
             buffer_size=60,
             analysis_workers=2,
             segment_length=50,  # 5-minute segments
             reconnect_attempts=5,
-            analyze_frame=booth_check.check
+            analyze_frame=attendant_check.is_attendant_in_booth
         )
       
         processor.start()
