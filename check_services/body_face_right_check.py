@@ -4,5 +4,5 @@ class BodyFaceRightCheck:
     def check(self, frame):
         for i in range(10000):
             continue
-        return True
+        return False
             
