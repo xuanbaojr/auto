@@ -42,10 +42,10 @@ class AttendantCheck:
         elif just_checked == 7:
             return self.face_smile_check.check(frame1)
         elif just_checked == 8:
-            return self.body_face_behind_check.check(frame1)
+            return self.body_face_right_check.check(frame1)
         elif just_checked == 9:
             return self.body_face_left_check.check(frame1)
         elif just_checked == 10:
-            return self.body_face_right_check.check(frame1)
+            return self.body_face_behind_check.check(frame1)
 
   
