@@ -130,14 +130,15 @@ class FaceInfo:
 
 if __name__ == '__main__':
     face_info = FaceInfo()
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture("./cam1_3.mp4")
     while True:
         ret, frame = cap.read()
         if not ret:
             break
         pitch, roll, yaw, smile = face_info.get_face_info(frame)
-        print(pitch, roll, yaw, smile)
-        cv2.imshow('frame', frame)
+        if pitch is not None and roll is not None and yaw is not None:
+            cv2.putText(frame, f"pitch: {pitch:.2f}, yaw: {yaw:.2f}, roll: {roll:.2f}, smile: {smile:.2f}", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+            cv2.imshow('frame', cv2.resize(frame, (1366, 768)))
         if cv2.waitKey(1) == ord('q'):
             break
     cap.release()

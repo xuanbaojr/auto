@@ -34,7 +34,7 @@ class AttendantCheck:
 
         self.booth_check = BoothCheck(detector)
         self.hand_check = HandCheck(mp_hands)
-        self.body_face_forward_check = BodyFaceForwardCheck(detector)
+        self.body_face_forward_check = BodyFaceForwardCheck(face_info)
         self.face_top_check = FaceTopCheck(face_info)
         self.face_down_check = FaceDownCheck(face_info)
         self.face_left_check = FaceLeftCheck(face_info)
