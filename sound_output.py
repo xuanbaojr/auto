@@ -1,41 +1,30 @@
-import cv2
-import numpy as np
+import pygame
+import time
 
 class SoundOutput:
-    def __init__(self, window_name='Sound Output', width=1500, height=100):
-        # Lưu tên cửa sổ để sử dụng khi hiển thị
-        self.window_name = window_name
-        # Tạo cửa sổ với kích thước tự động thích ứng nội dung
-        cv2.namedWindow(self.window_name, cv2.WINDOW_AUTOSIZE)
-        # Lưu kích thước khung hình (pixel)
-        self.width = width
-        self.height = height
+    def __init__(self):
+        # 1. Khởi tạo pygame mixer
+        pygame.mixer.init()
+        # 2. Đặt âm lượng mặc định (từ 0.0 tới 1.0)
+        pygame.mixer.music.set_volume(1.0)
 
-    def play_sound(self, sound):
-        # 1. Tạo một ảnh nền trắng kích thước height x width, 3 kênh màu, datatype uint8
-        img = np.ones((self.height, self.width, 3), dtype=np.uint8) * 255
+    def play_sound(self, file_name):
+        """
+        Phát file âm thanh MP3 đầu vào.
+        file_name: đường dẫn tới file .mp3
+        """
+        try:
+            # 3. Nạp file MP3
+            pygame.mixer.music.load(file_name)
+            # 4. Bắt đầu phát (loop=0 nghĩa không lặp lại)
+            pygame.mixer.music.play(loops=0)
+            while pygame.mixer.music.get_busy():
+                # Dừng 0.1 giây để không chiếm CPU liên tục
+                time.sleep(0.1)
+        except Exception as e:
+            print(f"Lỗi khi phát âm thanh: {e}")
 
-        # 2. Chọn font chữ của OpenCV
-        font = cv2.FONT_HERSHEY_SIMPLEX
 
-        # 3. Viết chuỗi sound lên ảnh tại vị trí (10, height//2)
-        #    - str(sound): đảm bảo sound là chuỗi
-        #    - font: font đã chọn
-        #    - fontScale=1: tỉ lệ phóng to/thu nhỏ chữ
-        #    - color=(0,0,0): màu chữ đen (B, G, R)
-        #    - thickness=2: độ dày của nét chữ
-        #    - lineType=cv2.LINE_AA: loại đường vẽ, LINE_AA cho chất lượng khử răng cưa tốt
-        cv2.putText(img, str(sound),
-                    (10, self.height // 2),
-                    font,
-                    1,
-                    (0, 0, 0),
-                    2,
-                    cv2.LINE_AA)
-
-        # 4. Hiển thị ảnh vừa vẽ chữ lên cửa sổ đã tạo
-        cv2.imshow(self.window_name, img)
-
-        # 5. Gọi cv2.waitKey(1) để OpenCV cập nhật cửa sổ; 
-        #    nếu bỏ qua, cửa sổ sẽ không render. Giá trị 1 ms đủ để không chặn luồng chính.
-        cv2.waitKey(1)
+if __name__ == "__main__":
+    sound_output = SoundOutput()
+    sound_output.play_sound("./sound/5_false.mp3")
