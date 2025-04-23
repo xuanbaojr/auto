@@ -4,50 +4,36 @@ from mediapipe.tasks.python import vision
 import cv2
 
 class BodyFaceForwardCheck:
-    def __init__(self, detector):
-        self.detector = detector
-
-    def get_points(self, frame_shape, landmark):
-        h, w, _ = frame_shape
-        x = int(landmark.x * w)
-        y = int(landmark.y * h)
-
-        return (x, y)
-
-    def check_forward(self, frame_shape, left_shoulder, right_shoulder, mid_head):
-        left_shoulder_x, left_shoulder_y = self.get_points(frame_shape, left_shoulder)
-        right_shoulder_x, right_shoulder_y = self.get_points(frame_shape, right_shoulder)
-        mid_head_x, mid_head_y = self.get_points(frame_shape, mid_head)
-
-        if (left_shoulder_x < right_shoulder_x and left_shoulder_x == right_shoulder_x):
-            return False
-        
-        elif (left_shoulder_x > right_shoulder_x):
-            mid_shoulder_x = (left_shoulder_x + right_shoulder_x) / 2
-            dist = abs(mid_head_x - mid_shoulder_x)
-            return dist < 20
-        
-        return False
+    def __init__(self, face_info):
+        self.face_info = face_info
+        self.min_yaw = -50
+        self.max_yaw = 50
+        self.min_pitch = 0.5
+        self.max_pitch = 1.5
 
     def check(self, frame):
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        frame_shape = frame_rgb.shape
-
-        mp_frame = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame_rgb)
-        pose_landmarker_result = self.detector.detect(mp_frame)
-
-        if pose_landmarker_result.pose_landmarks:
-            landmarks = pose_landmarker_result.pose_landmarks[0]
-        else:
-            print("Can not find landmarks")
-            return False
-        
-        left_shoulder = landmarks[11]
-        right_shoulder = landmarks[12]
-        mid_head = landmarks[0]
-
-        is_forward = self.check_forward(frame_shape, left_shoulder, right_shoulder, mid_head)
-        print(f"forward: {is_forward}")
-        
-        return is_forward
-            
+        pitch, roll, yaw, smile_ratio = self.face_info.get_face_info(frame)
+        if pitch is not None and roll is not None and yaw is not None:
+            if self.min_yaw < yaw < self.max_yaw and self.min_pitch < pitch < self.max_pitch:
+                return True
+        return False
+    
+if __name__ == "__main__":
+    base_optimions = python.BaseOptions(model_asset_path="./checkpoints/pose_landmarker_heavy.task")
+    options = vision.PoseLandmarkerOptions(
+        base_options=base_optimions,
+        output_segmentation_masks=True)
+    detector = vision.PoseLandmarker.create_from_options(options)
+    body_face_forward_check = BodyFaceForwardCheck(detector)
+    cap = cv2.VideoCapture("./cam1_2.mp4")
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        is_forward = body_face_forward_check.check(frame)
+        print(is_forward)
+        cv2.imshow('frame', cv2.resize(frame, (1366//2, 768//2)))
+        if cv2.waitKey(1) == ord('q'):
+            break
+    cap.release()
+    cv2.destroyAllWindows()
