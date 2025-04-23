@@ -2,18 +2,19 @@ from attendant_check import AttendantCheck
 from sound_output import SoundOutput
 
 instruction_map = {
-    1: "Xin chào, vui lòng đặt tay lên giá quét.",
-    2: "Quét bàn tay hoàn tất. Tiếp viên vui lòng trở về vị trí ban đầu và nhìn thẳng vào camera.",
-    3: "Hệ thống bắt đầu quét khuôn mặt. Tiếp viên ngẩng nhìn lên phía trên khoảng 45 độ",
-    4: "Nhìn sang phải khoảng 45 độ.",
-    5: "Nhìn xuống khoảng 45 độ.",
-    6: "Nhìn sang trái khoảng 45 độ.",
-    7: "Vui lòng nhìn thẳng vào camera và cười tươi.",
-    8: "Quay sang phải 90 độ và giữ người thẳng.",
-    9: "Tốt. Tiếp tục quay sang phải 90 độ và giữ người thẳng.",
-    10: "Tốt. Tiếp tục quay sang phải 90 độ và giữ người thẳng.",
-    11: "Quy trình đã hoàn tất. Xin cảm ơn"
+    1: "Xin chao, vui long dat tay len gia quet.",
+    2: "Vui long tro ve vi tri ban dau va nhin thang vao camera.",
+    3: "He thong bat dau quet khuon mat. Tiep vien nhin ngang len phia tren khoang 45 do",
+    4: "Nhin phai khoang 45 do.",
+    5: "Nhin xuong khoang 45 do.",
+    6: "Nhin trai khoang 45 do.",
+    7: "Vui long nhin thang vao camera va cuoi tuoi.",
+    8: "Quay sang phai 90 do va giu nguoi thang.",
+    9: "Tot. Tiep tuc quay sang phai 90 do va giu nguoi thang.",
+    10: "Tot. Tiep tuc quay sang phai 90 do va giu nguoi thang.",
+    11: "Quy trinh da hoan tat. Xin cam on"
 }
+
 
 class GetInstruction:
     def __init__(self):
@@ -27,6 +28,7 @@ class GetInstruction:
             self.just_checked += 1
             self.show_instruction(instruction_map[self.just_checked])
             if self.just_checked == 11:
+                self.show_instruction(instruction_map[self.just_checked])
                 self.just_checked = 0
 
             

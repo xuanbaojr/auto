@@ -2,8 +2,8 @@ import cv2
 import mediapipe as mp
 
 class HandCheck:
-    def __init__(self):
-        self.mp_hands = mp.solutions.hands
+    def __init__(self, mp_hands):
+        self.mp_hands = mp_hands
     def check(self, frame):
         total_keypoints = 0
 
