@@ -48,7 +48,7 @@ class AttendantCheck:
 
     
     def check(self, frame1, frame2, frame3, frame4, just_checked):
-        print("just_checked: ", just_checked)
+        # print("just_checked: ", just_checked)
         if just_checked == 0:
             return self.booth_check.check(frame1)
         elif just_checked == 1:
