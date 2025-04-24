@@ -79,3 +79,6 @@ class SoundOutput:
             except Exception as e:
                 # 12. In lỗi nếu không load hoặc phát được file
                 print(f"Lỗi khi phát âm thanh '{file_name}': {e}")
+    
+    def stop_sound(self):
+        pygame.mixer.music.stop()

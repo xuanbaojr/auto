@@ -2,27 +2,25 @@ from gtts import gTTS
 # 1. Import lớp gTTS từ thư viện gtts, dùng để tạo đối tượng text-to-speech.
 
 instruction_map = {
-    "1_true": "Xin chào, vui lòng đặt tay lên giá theo hướng dẫn",
-    "2_true": "Tốt, quay về ô vuông, xem video hướng dẫn, nhìn thẳng camera và nhìn lần lượt 4 hướng",
+    "1_true": "Xin chào, vui lòng đặt các ngón tay lên hai miếng dán bên phải",
+    "2_true": "Tốt, bỏ tay khỏi vị trí đang đặt, đứng vào ô vuông duới chân, nhìn thẳng camera",
     "2_false": "Chưa đạt, vui lòng đặt tay lên giá theo hướng dẫn",
-    "3_true": "Tốt, hãy nhìn lên trên như video hướng dẫn",
-    "3_false": "Vui lòng nhìn thẳng vào camera",
-    "4_true": "Tốt",
-    "4_false": "Hãy nhìn lên trên như video hướng dẫn",
-    "5_true": "Tốt",
-    "5_false": "Hãy nhìn sang phải như video hướng dẫn",
-    "6_true": "Tốt",
-    "6_false": "Hãy nhìn xuống dưới như video hướng dẫn",
-    "7_true": "Tốt, hãy nhìn thẳng camera và cười như ảnh hướng dẫn",
-    "7_false": "Hãy nhìn sang trái như video hướng dẫn",
-    "8_true": "Tốt, quay phải 90 độ, giữ thẳng người, đầu nhìn thẳng",
-    "8_false": "Vui lòng nhìn thẳng camera và cười như ảnh hướng dẫn",
-    "9_true": "Tốt, quay phải quay lưng về phía camera, giữ thẳng người, đầu nhìn thẳng",
-    "9_false": "Vui lòng quay phải 90 độ so với camera",
-    "10_true": "Tốt, quay phải 90 độ, đầu nhìn thẳng về phía cửa",
-    "10_false": "Chưa đạt, hãy quay lưng về phía camera, đầu nhìn thẳng",
-    "11_true": "Tốt, đã hoàn thành, xin cảm ơn",
-    "11_false": "Chưa đạt, vui lòng quay người về phía cửa, đầu nhìn thẳng"
+    "3_true": "Tốt, hãy nhìn bốn hướng theo video huớng dẫn",
+    "3_false": "Chưa đạt, Vui lòng đứng vào ô vuông duới chân, nhìn thẳng camera",
+    # bat dau nhin len
+    "4_true": "Tốt",              # check nhin len
+    "4_false": "Vui lòng nhìn lên như hướng dẫn",
+    "5_true": "Tốt, hãy nhìn thẳng camera và cười như ảnh hướng dẫn",    # check nhin sang trai
+    "5_false": "Hãy nhìn sang trái như ảnh hướng dẫn",
+
+    "6_true": "Tốt, quay người sang phải 90 độ, giữ thẳng người, đầu nhìn thẳng",
+    "6_false": "Vui lòng nhìn thẳng camera và cười như ảnh hướng dẫn",
+    "7_true": "Tốt, vui long quay lưng về phía camera, giữ thẳng người, đầu nhìn thẳng",
+    "7_false": "Vui lòng quay phải 90 độ so với camera",
+    "8_true": "Tốt, vui lòng quay người sang phải 90 độ, đầu nhìn thẳng về phía cửa",
+    "8_false": "Chưa đạt, hãy quay lưng về phía camera, đầu nhìn thẳng",
+    "9_true": "Tốt, đã hoàn thành, xin cảm ơn",
+    "9_false": "Chưa đạt, vui lòng quay người về phía cửa, đầu nhìn thẳng"
 }
 # 2. Định nghĩa từ điển chứa cặp key → câu nói tiếng Việt.
 

@@ -5,6 +5,7 @@ import queue
 import time
 from threading import Lock
 from get_instruction import GetInstruction
+from attendant_check import AttendantCheck
 
 class ThreadedCamera:
     """Reads frames from an RTSP stream in a background thread to avoid blocking."""
@@ -61,15 +62,38 @@ class CameraInput:
         self.cams = [ThreadedCamera(url, f"Cam{i+1}") for i, url in enumerate(rtsp_urls)]
         self.frame_queue = queue.Queue(maxsize=5)
         self.get_instruction = GetInstruction()
+        self.attendant_check = AttendantCheck()
+        self.is_check_booth = False
+        self.num_frames_false = 0
+        self.num_frames_false_max = 20
 
-        # Start instruction worker
-        worker = threading.Thread(target=self._instruction_worker, daemon=True)
-        worker.start()
+        self.check_booth = threading.Thread(target=self._check_booth_worker, daemon=True)
+        self.check_booth.start()
 
-    def _instruction_worker(self):
+        self.get_instruction_worker = threading.Thread(target=self._get_instruction_worker, daemon=True)
+        self.get_instruction_worker.start()
+    
+    def _check_booth_worker(self):
         while True:
             frames = self.frame_queue.get()
-            self.get_instruction.get_instruction(*frames)
+            checked_result =self.attendant_check.check(*frames, 0)
+            if checked_result:
+                self.is_check_booth = True
+                self.num_frames_false = 0
+            else:
+                self.num_frames_false += 1
+                if self.num_frames_false > self.num_frames_false_max:
+                    self.is_check_booth = False
+                    self.num_frames_false = 0
+            self.frame_queue.task_done()
+        
+    def _get_instruction_worker(self):
+        while True:
+            frames = self.frame_queue.get()
+            if self.is_check_booth == True and self.get_instruction.get_just_checked() != 9:
+                self.get_instruction.start_get_instruction(*frames)
+            if self.is_check_booth == False:
+                self.get_instruction.stop_get_instruction()
             self.frame_queue.task_done()
 
     def run(self):
@@ -78,19 +102,13 @@ class CameraInput:
 
         try:
             while True:
-                # Grab latest frames
                 results = [cam.get_frame() for cam in self.cams]
                 rets, frames = zip(*results)
-
-                # Display
                 show.show_video(*frames, self.get_instruction.just_checked)
-
-                # Queue for processing (non-blocking)
                 try:
                     self.frame_queue.put_nowait(frames)
                 except queue.Full:
                     pass
-
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
 
