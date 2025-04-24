@@ -6,6 +6,7 @@ import time
 from threading import Lock
 from get_instruction import GetInstruction
 from attendant_check import AttendantCheck
+from save_video import SaveVideo
 
 class ThreadedCamera:
     """Reads frames from an RTSP stream in a background thread to avoid blocking."""
@@ -59,10 +60,13 @@ class ThreadedCamera:
 class CameraInput:
     def __init__(self, rtsp_urls):
         # Initialize four threaded cameras
+        self.rtsp_url1 = rtsp_urls[0]
+        self.rtsp_url4 = rtsp_urls[3]
         self.cams = [ThreadedCamera(url, f"Cam{i+1}") for i, url in enumerate(rtsp_urls)]
         self.frame_queue = queue.Queue(maxsize=5)
         self.get_instruction = GetInstruction()
         self.attendant_check = AttendantCheck()
+        self.save_video = SaveVideo()
         self.is_check_booth = False
         self.num_frames_false = 0
         self.num_frames_false_max = 20
@@ -72,9 +76,13 @@ class CameraInput:
 
         self.get_instruction_worker = threading.Thread(target=self._get_instruction_worker, daemon=True)
         self.get_instruction_worker.start()
+
+        self.save_video_wroker = threading.Thread(target=self._save_video_worker, daemon=True)
+        self.save_video_wroker.start()
     
     def _check_booth_worker(self):
         while True:
+            # time.sleep(0.05)
             frames = self.frame_queue.get()
             checked_result =self.attendant_check.check(*frames, 0)
             if checked_result:
@@ -89,11 +97,22 @@ class CameraInput:
         
     def _get_instruction_worker(self):
         while True:
+            # time.sleep(0.05)
             frames = self.frame_queue.get()
             if self.is_check_booth == True and self.get_instruction.get_just_checked() != 9:
                 self.get_instruction.start_get_instruction(*frames)
             if self.is_check_booth == False:
                 self.get_instruction.stop_get_instruction()
+            self.frame_queue.task_done()
+
+    def _save_video_worker(self):
+        while True:
+            # time.sleep(0.05)
+            frames = self.frame_queue.get()
+            if self.is_check_booth == True and self.get_instruction.get_just_checked() != 9:
+                self.save_video.start_recording(self.rtsp_url1, self.rtsp_url4, *frames)
+            if self.is_check_booth == False:
+                self.save_video.stop_recording()
             self.frame_queue.task_done()
 
     def run(self):
