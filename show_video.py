@@ -30,22 +30,21 @@ class ShowVideo:
         elif just_checked == 1:
             self.render_frame[0:768, 1366//2:1366] = self.im_1
         elif just_checked == 2:
-            self.render_frame[0:768, 1366//2:1366] = self.im_2
-        elif just_checked == 3 or just_checked == 4:          # da xong, chuan bi xoay faceid
-            index = int(self.faceid_idx) % len(self.faceid)
-            self.render_frame[0:768, 1366//2:1366] = self.faceid[index]
-            self.faceid_idx += 0.05
-        elif just_checked == 5:
-            self.render_frame[0:768, 1366//2:1366] = self.im_4
-        elif just_checked == 6:
-            self.render_frame[0:768, 1366//2:1366] = self.im_5
-        elif just_checked == 7:
-            self.render_frame[0:768, 1366//2:1366] = self.im_6
-        elif just_checked == 8:           # xoay xong faceid
             self.render_frame[0:768, 1366//2:1366] = self.im_7
-        elif just_checked == 9:
+        elif just_checked == 3:
+            self.render_frame[0:768, 1366//2:1366] = self.im_4
+        elif just_checked == 4:
+            self.render_frame[0:768, 1366//2:1366] = self.im_5
+        elif just_checked == 5:
+            self.render_frame[0:768, 1366//2:1366] = self.im_6
+        elif just_checked == 6:           # xoay xong faceid
+            self.render_frame[0:768, 1366//2:1366] = self.im_7
+        elif just_checked == 7:
             self.render_frame[0:768, 1366//2:1366] = self.im_0
         self.render_frame[0:768//2, 0:1366//2] = frame1
-        self.render_frame[768//2:768, 0:1366//2] = frame4
+        if just_checked == 2:
+            self.render_frame[768//2:768, 0:1366//2] = frame3
+        else:
+            self.render_frame[768//2:768, 0:1366//2] = frame4
         cv2.imshow('Camera 1', self.render_frame)
         cv2.waitKey(1)

@@ -54,18 +54,12 @@ class AttendantCheck:
         elif just_checked == 1:
             return self.hand_check.check(frame4)          # frame4
         elif just_checked == 2:
-            return self.body_face_forward_check.check(frame1)
-        elif just_checked == 3:
-            return self.face_top_check.check(frame1)
-        elif just_checked == 4:
-            return self.face_left_check.check(frame1)
-        elif just_checked == 5:
             return self.face_smile_check.check(frame1)
-        elif just_checked == 6:
+        elif just_checked == 3:
             return self.body_face_right_check.check(frame1)
-        elif just_checked == 7:
+        elif just_checked == 4:
             return self.body_face_behind_check.check(frame1)
-        elif just_checked == 8:
+        elif just_checked == 5:
             return self.body_face_left_check.check(frame1)
 
   
