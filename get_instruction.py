@@ -33,7 +33,7 @@ class GetInstruction:
         self.false_frames = 0
 
         self.true_frames_max = 2
-        self.false_frames_max = 200
+        self.false_frames_max = 50
         self.false_num_max =  3
         self.attendant_check = AttendantCheck()
         self.sound_output = SoundOutput()

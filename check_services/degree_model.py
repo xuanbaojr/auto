@@ -3,6 +3,34 @@ import numpy as np
 import tensorflow as tf
 import cv2
 
+import threading
+from threading import Lock
+import cv2
+
+class Camera:
+    last_frame = None
+    last_ready = None
+    lock = Lock()
+
+    def __init__(self, rtsp_link):
+        capture = cv2.VideoCapture(rtsp_link)
+        thread = threading.Thread(target=self.rtsp_cam_buffer, args=(capture,), name="rtsp_read_thread")
+        thread.daemon = True
+        thread.start()
+
+    def rtsp_cam_buffer(self, capture):
+        while True:
+            with self.lock:
+                self.last_ready, self.last_frame = capture.read()
+
+
+    def getFrame(self):
+        if (self.last_ready is not None) and (self.last_frame is not None):
+            return self.last_frame.copy()
+        else:
+            return None
+
+
 class FaceInfo:
     def __init__(self, model_dir=None, image_shape_max=640):
         self.current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -130,16 +158,18 @@ class FaceInfo:
 
 if __name__ == '__main__':
     face_info = FaceInfo()
-    cap = cv2.VideoCapture("./cam1_3.mp4")
+    from dotenv import load_dotenv
+    import os
+    load_dotenv()
+    rtsp_url1 = os.getenv('RTSP_URL1')
+    cap = Camera(rtsp_url1)
     while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
+        frame = cap.getFrame()
+        if frame is None:
+            continue
         pitch, roll, yaw, smile = face_info.get_face_info(frame)
         if pitch is not None and roll is not None and yaw is not None:
             cv2.putText(frame, f"pitch: {pitch:.2f}, yaw: {yaw:.2f}, roll: {roll:.2f}, smile: {smile:.2f}", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
             cv2.imshow('frame', cv2.resize(frame, (1366, 768)))
         if cv2.waitKey(1) == ord('q'):
             break
-    cap.release()
-    cv2.destroyAllWindows()

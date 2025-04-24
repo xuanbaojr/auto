@@ -26,7 +26,7 @@ class BodyFaceBehindCheck:
         elif (left_shoulder_x < right_shoulder_x):
             mid_shoulder_x = (left_shoulder_x + right_shoulder_x) / 2
             dist = abs(mid_head_x - mid_shoulder_x)
-            return dist < 20
+            return 50 <  dist < 250
         
         return False
         

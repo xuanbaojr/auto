@@ -41,8 +41,8 @@ class AttendantCheck:
         self.face_right_check = FaceRightCheck(face_info)
         self.face_smile_check = FaceSmileCheck(face_info)
         self.body_face_behind_check = BodyFaceBehindCheck(detector)
-        self.body_face_left_check = BodyFaceLeftCheck(detector)
-        self.body_face_right_check = BodyFaceRightCheck(detector)
+        self.body_face_left_check = BodyFaceLeftCheck(face_info)
+        self.body_face_right_check = BodyFaceRightCheck(face_info)
 
         
 
@@ -52,7 +52,7 @@ class AttendantCheck:
         if just_checked == 0:
             return self.booth_check.check(frame1)
         elif just_checked == 1:
-            return self.hand_check.check(frame1)          # frame4
+            return self.hand_check.check(frame4)          # frame4
         elif just_checked == 2:
             return self.body_face_forward_check.check(frame1)
         elif just_checked == 3:

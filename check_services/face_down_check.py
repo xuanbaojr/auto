@@ -1,9 +1,9 @@
 class FaceDownCheck:
     def __init__(self, face_info):
         self.face_info = face_info
-        self.target_pitch = 1.5
-        self.min_yaw = -10
-        self.max_yaw = 10
+        self.target_pitch = 2
+        self.min_yaw = -150
+        self.max_yaw = 150
 
     def check(self, frame):
         pitch, roll, yaw, _ = self.face_info.get_face_info(frame)
