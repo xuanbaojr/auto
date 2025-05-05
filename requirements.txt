@@ -1,0 +1,8 @@
+opencv-python
+mediapipe
+tensorflow
+pygame
+dotenv
+gtts
+pydub
+edge-tts
