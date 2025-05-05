@@ -3,6 +3,7 @@ import numpy as np
 import tensorflow as tf
 import cv2
 
+<<<<<<< HEAD
 import threading
 from threading import Lock
 import cv2
@@ -31,6 +32,8 @@ class Camera:
             return None
 
 
+=======
+>>>>>>> 30669cd40155d41f89fabcc3a13a39a06a37a0de
 class FaceInfo:
     def __init__(self, model_dir=None, image_shape_max=640):
         self.current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -158,6 +161,7 @@ class FaceInfo:
 
 if __name__ == '__main__':
     face_info = FaceInfo()
+<<<<<<< HEAD
     from dotenv import load_dotenv
     import os
     load_dotenv()
@@ -176,3 +180,17 @@ if __name__ == '__main__':
             cv2.imshow('frame', frame)
         if cv2.waitKey(1) == ord('q'):
             break
+=======
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        pitch, roll, yaw, smile = face_info.get_face_info(frame)
+        print(pitch, roll, yaw, smile)
+        cv2.imshow('frame', frame)
+        if cv2.waitKey(1) == ord('q'):
+            break
+    cap.release()
+    cv2.destroyAllWindows()
+>>>>>>> 30669cd40155d41f89fabcc3a13a39a06a37a0de

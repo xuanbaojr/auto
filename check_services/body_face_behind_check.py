@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import os
 import mediapipe as mp
 from mediapipe.tasks import python
@@ -102,3 +103,13 @@ if __name__ == "__main__":
         cv2.imshow('frame', frame)
         if cv2.waitKey(1) == ord('q'):
             break
+=======
+class BodyFaceBehindCheck:
+    def __init__(self):
+        pass
+    def check(self, frame):
+        for i in range(5000):
+            continue
+        return False
+            
+>>>>>>> 30669cd40155d41f89fabcc3a13a39a06a37a0de

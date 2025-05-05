@@ -1,8 +1,12 @@
+<<<<<<< HEAD
 import os
+=======
+>>>>>>> 30669cd40155d41f89fabcc3a13a39a06a37a0de
 import cv2
 import mediapipe as mp
 
 class PoseService:
+<<<<<<< HEAD
     def __init__(self, detector):        
         self.detector = detector
     
@@ -20,6 +24,34 @@ class BoothCheck:
         self.pose_service = PoseService(detector)
         self.person_frames_threshold = 1  # Detect person after this many frames
         self.no_person_frames_threshold = 1  # Declare no person after this many frames
+=======
+    def __init__(self):
+        """
+        Initialize the pose detection service with multi-camera video recording capabilities.
+        Implements the state machine for detecting person entry/exit.
+        """
+        self.mp_pose = mp.solutions.pose
+        self.pose = self.mp_pose.Pose(
+            static_image_mode=False,
+            model_complexity=1,
+            enable_segmentation=False,
+            min_detection_confidence=0.15,
+            min_tracking_confidence=0.7
+        )
+
+    
+    def get_pose(self, frame):
+        image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        results = self.pose.process(image_rgb)
+        result = "1" if results.pose_landmarks else "0"
+        return result
+
+class BoothCheck:
+    def __init__(self):
+        self.pose_service = PoseService()
+        self.person_frames_threshold = 5  # Detect person after this many frames
+        self.no_person_frames_threshold = 20  # Declare no person after this many frames
+>>>>>>> 30669cd40155d41f89fabcc3a13a39a06a37a0de
         self.person_frame_count = 0
         self.no_person_frame_count = 0
         self.person_present = False

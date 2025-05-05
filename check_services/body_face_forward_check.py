@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
@@ -37,3 +38,13 @@ if __name__ == "__main__":
             break
     cap.release()
     cv2.destroyAllWindows()
+=======
+class BodyFaceForwardCheck:
+    def __init__(self):
+        pass
+    def check(self, frame):
+        for i in range(10000):
+            continue
+        return False
+            
+>>>>>>> 30669cd40155d41f89fabcc3a13a39a06a37a0de
