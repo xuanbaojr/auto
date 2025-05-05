@@ -5,3 +5,4 @@ pygame
 dotenv
 gtts
 pydub
+edge-tts
