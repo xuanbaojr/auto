@@ -1,3 +1,14 @@
+<<<<<<< HEAD
+class FaceSmileCheck:
+
+    def __init__(self, face_info):
+        self.face_info = face_info
+        self.min_yaw = -50
+        self.max_yaw = 50
+        self.min_pitch = 0.3
+        self.max_pitch = 1.8
+
+=======
 from degree_model import FaceInfo
 class FaceSmileCheck:
 
@@ -7,12 +18,17 @@ class FaceSmileCheck:
         self.max_yaw = 10
         self.min_pitch = 0.5
         self.max_pitch = 1.5
+>>>>>>> 30669cd40155d41f89fabcc3a13a39a06a37a0de
 
     def check(self, frame):
         pitch, roll, yaw, smile_ratio = self.face_info.get_face_info(frame)
         if pitch is not None and roll is not None and yaw is not None:
             if self.min_yaw < yaw < self.max_yaw and self.min_pitch < pitch < self.max_pitch:
+<<<<<<< HEAD
+                if smile_ratio > 0.88:
+=======
                 if smile_ratio > 0.5:
+>>>>>>> 30669cd40155d41f89fabcc3a13a39a06a37a0de
                     return True
         return False
             
