@@ -61,6 +61,7 @@ class AttendantCheck:
         elif just_checked == 4:
             return self.body_face_behind_check.check(frame1)
         elif just_checked == 5:
+            time.sleep(1)
             return self.body_face_left_check.check(frame1)
 
   

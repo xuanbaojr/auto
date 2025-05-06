@@ -94,7 +94,7 @@ class SaveVideo:
                 self.current_dir_path = None
             
             # Insert data to database
-            self.db.insert(self.date_folder, int(self.hour), int(self.minute), int(self.second), duration_seconds) # self.db.insert(self.date_folder, self.hour, self.minute, self.second, duration_seconds)
+            # self.db.insert(self.date_folder, int(self.hour), int(self.minute), int(self.second), duration_seconds) # self.db.insert(self.date_folder, self.hour, self.minute, self.second, duration_seconds)
             print(f"[INFO] Đã dừng ghi video. Thời lượng: {duration_seconds} giây")
 
         else:
