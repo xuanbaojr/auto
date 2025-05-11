@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
@@ -17,13 +16,3 @@ class BodyFaceLeftCheck:
             if self.min_yaw < yaw and self.min_pitch < pitch < self.max_pitch:
                 return True
         return False
-=======
-class BodyFaceLeftCheck:
-    def __init__(self):
-        pass
-    def check(self, frame):
-        for i in range(10000):
-            continue
-        return False
-            
->>>>>>> 30669cd40155d41f89fabcc3a13a39a06a37a0de

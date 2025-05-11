@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import os
 import mediapipe as mp
 from mediapipe.tasks import python
@@ -55,7 +54,7 @@ class BodyFaceBehindCheck:
             mid_shoulder_x = (left_shoulder_x + right_shoulder_x) / 2
             dist = abs(mid_head_x - mid_shoulder_x)
             print(dist)
-            return dist < 100
+            return dist < 120
         
         return False
         
@@ -103,13 +102,3 @@ if __name__ == "__main__":
         cv2.imshow('frame', frame)
         if cv2.waitKey(1) == ord('q'):
             break
-=======
-class BodyFaceBehindCheck:
-    def __init__(self):
-        pass
-    def check(self, frame):
-        for i in range(5000):
-            continue
-        return False
-            
->>>>>>> 30669cd40155d41f89fabcc3a13a39a06a37a0de

@@ -49,7 +49,7 @@ class ThreadedCamera:
         with self.lock:
             if self.last_ready and self.last_frame is not None:
                 frame = self.last_frame.copy()
-                frame = frame[:, 450:2200]
+                frame = frame[:, 250:2400]
                 return True, frame
             else:
                 return False, None
