@@ -21,12 +21,14 @@ class ShowVideo:
         self.im_7 = cv2.resize(cv2.imread("./ims_instruction/11.png"), (1366//2, 768))
 
     def show_video(self, frame1, frame2, frame3, frame4, just_checked):
+        if just_checked == 0:
+            just_checked = "READY"
         frame1 = cv2.resize(frame1, (1366//2, 768//2))
         frame3 = cv2.resize(frame3, (1366//2, 768//2))
         cv2.putText(frame1, f"{just_checked}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
         frame4 = cv2.resize(frame4, (1366//2, 768//2))
 
-        if just_checked == 0:
+        if just_checked == "READY":
             self.render_frame[0:768, 1366//2:1366] = self.im_0
         elif just_checked == 1:
             self.render_frame[0:768, 1366//2:1366] = self.im_1

@@ -54,7 +54,7 @@ class BodyFaceBehindCheck:
             mid_shoulder_x = (left_shoulder_x + right_shoulder_x) / 2
             dist = abs(mid_head_x - mid_shoulder_x)
             print(dist)
-            return dist < 100
+            return dist < 120
         
         return False
         

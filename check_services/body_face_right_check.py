@@ -6,7 +6,7 @@ import cv2
 class BodyFaceRightCheck:
     def __init__(self, face_info):
         self.face_info = face_info
-        self.min_yaw = -60
+        self.min_yaw = -50
         self.min_pitch = 0.2
         self.max_pitch = 1.8
 

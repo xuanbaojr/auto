@@ -2,7 +2,7 @@ import sqlite3
 
 class DB:
     def __init__(self):
-        self.conn = sqlite3.connect("sample.db")
+        self.conn = sqlite3.connect("sample.db", check_same_thread=False)
         self.c = self.conn.cursor()
         self.c.execute("""
           CREATE TABLE IF NOT EXISTS videos (
